@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Book } from './schema/book.schema';
@@ -23,9 +23,6 @@ export class BookService {
             }
         }:{}
         const find = await this.bookModel.find({...keyword}).limit(resPerPage).skip(skipPage).exec();
-        // if(keyword != find){
-        //     throw new NotFoundException('no search keyword matches')
-        // }
         return find;
     }
 
@@ -34,16 +31,14 @@ export class BookService {
         return book.save();
     }
 
-    // async findById(id:string): Promise<Book>{
-    //     const findId = await this.bookModel.findById({ _id: id }).exec();
-    //     if(!findId){
-    //         throw new NotFoundException('sorry no book found');
-    //     }
-    //     return findId;
-    // }
-
         async findById(_id:string): Promise<Book>{
-        const findId = await this.bookModel.findOne({ _id: _id }).exec();
+            // validating mongooseDB ID error
+            const isValidateId = mongoose.isValidObjectId(_id);
+            if(!isValidateId){
+                throw new BadRequestException('please enter a valid id number');
+            }
+
+        const findId = await this.bookModel.findById({ _id: _id }).exec();
         if(!findId){
             throw new NotFoundException('sorry no book found');
         }
