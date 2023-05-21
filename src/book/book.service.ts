@@ -2,13 +2,24 @@ import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Book } from './schema/book.schema';
+import {Query} from 'express-serve-static-core';
 
 @Injectable()
 export class BookService {
     constructor(@InjectModel(Book.name) private readonly bookModel:mongoose.Model<Book>){}
 
-    async findAll(): Promise<Book []>{
-        const find = await this.bookModel.find().exec()
+    async findAll(query:Query): Promise<Book []>{
+        // console.log(query);
+        const keyword = query.keyword ?{
+            title:{
+                $regex: query.keyword,
+                $options: 'i'
+            }
+        }:{}
+        const find = await this.bookModel.find({...keyword}).exec()
+        // if(keyword != find){
+        //     throw new NotFoundException('no search keyword matches')
+        // }
         return find;
     }
 

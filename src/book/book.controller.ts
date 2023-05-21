@@ -1,17 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from './schema/book.schema';
 import { createBookDTO } from './dto/create.book.dto';
 import { updateBookDTO } from './dto/update.book.dto';
 import { AnyObject } from 'mongoose';
+import {Query as ExpressQuery} from 'express-serve-static-core';
 
 @Controller('book')
 export class BookController {
     constructor(private bookService: BookService){}
 
     @Get()
-    async getAll(): Promise<Book []>{
-        return await this.bookService.findAll()
+    async getAll(@Query()query:ExpressQuery): Promise<Book []>{
+        return await this.bookService.findAll(query)
     }
 
     @Post('create')
