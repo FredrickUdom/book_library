@@ -9,14 +9,20 @@ export class BookService {
     constructor(@InjectModel(Book.name) private readonly bookModel:mongoose.Model<Book>){}
 
     async findAll(query:Query): Promise<Book []>{
-        // console.log(query);
+        // implementing pagination here
+        const resPerPage = 2;
+        const currentPage = Number(query.page) || 1;
+        const skipPage = resPerPage * (currentPage -1);
+        //pagination ended here
+
+        //implementing search keyword here
         const keyword = query.keyword ?{
             title:{
                 $regex: query.keyword,
                 $options: 'i'
             }
         }:{}
-        const find = await this.bookModel.find({...keyword}).exec()
+        const find = await this.bookModel.find({...keyword}).limit(resPerPage).skip(skipPage).exec();
         // if(keyword != find){
         //     throw new NotFoundException('no search keyword matches')
         // }
